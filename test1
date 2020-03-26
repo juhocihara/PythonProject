@@ -1,0 +1,65 @@
+import tweepy
+
+#Autenticar
+
+autenticar = tweepy.OAuthHandler ('THamHu3qOTwFJOuHMceZDBsrl', 'bHBTjdviOeLZsrGYdAlpUwfIigfcanMsRFyehbNsweZmuquMws')
+autenticar.set_access_token ('4769671696-xw4jOVQ5VB5xuMQqmWh5G9CG73LdvbJ53Hatoil', 'ktpjJA5WUL3v850aCT06LT9ibQEskDS8mckgpYHiUzL1q')
+
+#Criar objeto API
+
+api = tweepy.API (autenticar, wait_on_rate_limit = True,
+                  wait_on_rate_limit_notify = True)
+
+#Verificar
+
+try:
+    api.verify_credentials()
+    print ('Authentication OK')
+except:
+    print ('Error during authentication')
+
+#Printar os resultados
+    
+results = api.search (q = 'metrô são paulo', count = 10)
+
+for result in results:
+    print (result.text)
+
+# Importar bibliotecas oara uso do Naive Bayes
+
+import nltk
+import re
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn import metrics
+from sklearn.model_selection import cross_val_predict
+
+#BAG OF WORDS
+
+#Ler a base de dados
+
+dataset = pd.read_csv('tweets-mg.csv') ##
+dataset.count()
+
+#Modelar a base
+
+tweets = dataset['Text'].values
+classes = dataset['Classificacao'].values
+
+# criar o código que  treina o modelo usando a abordagem Bag of Words e o algoritmo Naive Bayes Multinomial.
+ 
+vectorizer = CountVectorizer(analyzer="word") #criar um objeto do tipo CountVectorizer chamado vectorizer.
+freq_tweets = vectorizer.fit_transform(tweets) #usar o objeto vectorizer para calcular a frequência de todas as palavras da lista de tweets e armazenar seu retorno em freq_tweets.
+modelo = MultinomialNB() #criar um objeto chamado modelo do tipo Naive Bayes Multinomial. Esse é o algoritmo de classificação.
+modelo.fit(freq_tweets,classes) #treinar o modelo usando a frequência de palavras (freq_tweets) e as classes de cada instância.
+
+testes = ['Esse governo está no início, vamos ver o que vai dar',
+         'Estou muito feliz com o governo de Minas esse ano',
+         'O estado de Minas Gerais decretou calamidade financeira!!!',
+         'A segurança desse país está deixando a desejar',
+         'O governador de Minas é do PT']
+
+
+freq_testes = vectorizer.transform(testes)
+modelo.predict(freq_testes)
